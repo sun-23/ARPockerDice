@@ -36,13 +36,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                     SCNVector3(0.05, 0.05, 0.02)]
     var gameState: GameState = .detectSurface
     var statusMessage:String = ""
+    var focusPoint:CGPoint!
     
       override func viewDidLoad() {
         super.viewDidLoad()
         
         initSceneView()
         initARSession()
-        initSceneView()
+        initScene()
         loadModels()
     }
     
@@ -87,7 +88,32 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         DispatchQueue.main.async {
            // self.statusLabel.text = self.trackingStatus
             self.updateStatus()
+            self.updateFocusNode()
         }
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        
+        // plane of obj anchor
+        guard let planeAnchor = anchor as? ARPlaneAnchor else {return}
+        
+        DispatchQueue.main.async {
+            let planeNode = self.createARPlaneNode(planeAnchor: planeAnchor, color: UIColor.yellow.withAlphaComponent(0.5))
+            
+            node.addChildNode(planeNode)
+            
+        }
+        
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        
+        guard let planeAnchor = anchor as? ARPlaneAnchor else {return}
+        DispatchQueue.main.async {
+            //                                           planeNode
+            self.updateARPlaneNode(planeNode: node.childNodes[0], planeAnchor: planeAnchor)
+        }
+        
     }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
@@ -142,6 +168,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
        //     SCNDebugOptions.showBoundingBoxes,
       //      SCNDebugOptions.showWireframe
    //     ]
+        
+        focusPoint = CGPoint(x: view.center.x, y: view.center.y + view.center.y * 0.25)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
+        
+    }
+    
+    @objc func orientationChanged() {
+        
+        focusPoint = CGPoint(x: view.center.x, y: view.center.y + view.center.y * 0.25)
+        
     }
     
     func initARSession()  {
@@ -211,9 +247,61 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.statusLabel.text = trackingStatus != "" ? "\(trackingStatus)" : "\(statusMessage)"
     }
     
+    
+    //                                                                object,                          color
     func createARPlaneNode(planeAnchor: ARPlaneAnchor,color: UIColor) -> SCNNode {
-        <#function body#>
+        // build planeGeomatry
+        let planeGeomatry = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
+        
+        // create material
+        let planeMaterial = SCNMaterial()
+        planeMaterial.diffuse.contents = "PockerDice.scnassets/Textures/Surface_DIFFUSE.png"
+        // add material
+        planeGeomatry.materials = [planeMaterial]
+        
+        // create Node
+        let planeNode = SCNNode(geometry: planeGeomatry)
+        
+        planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
+        //                                                                                   angle           x    y   z
+        planeNode.transform  = SCNMatrix4MakeRotation(-Float.pi / 2, 1  , 0, 0)
+        return planeNode
+        
     }
+    
+    func updateARPlaneNode(planeNode:SCNNode, planeAnchor : ARPlaneAnchor)  {
+        
+        let planeGeomatry = planeNode.geometry as! SCNPlane
+        planeGeomatry.width = CGFloat(planeAnchor.extent.x)
+        planeGeomatry.height = CGFloat(planeAnchor.extent.z)
+        
+        planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
+        
+        
+    }
+    
+    func updateFocusNode() {
+        // 1
+        let results = self.sceneView.hitTest(self.focusPoint, types: [.existingPlaneUsingExtent])
+        // 2
+        if results.count == 1 {
+            if let match = results.first {
+                
+                let t = match.worldTransform
+                self.focusNode.position = SCNVector3(t.columns.3.x, t.columns.3.y, t.columns.3.z)
+                self.gameState = .swipeToPlay
+                
+            }
+            
+        }else{
+            
+            self.gameState = .pointToSurface
+            
+        }
+        
+    }
+    
+    
     
 }
 
