@@ -14,10 +14,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var statusLabel: UILabel!
-    
     @IBOutlet weak var startButton: UIButton!
     @IBOutlet weak var resetButton: UIButton!
-    
     @IBOutlet weak var styleButton: UIButton!
     
     override var prefersStatusBarHidden: Bool{
@@ -36,10 +34,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                     SCNVector3(0.05, 0.00, 0.0),
                                     SCNVector3(-0.05, 0.05, 0.02),
                                     SCNVector3(0.05, 0.05, 0.02)]
+    var gameState: GameState = .detectSurface
+    var statusMessage:String = ""
     
-    
-    
-    override func viewDidLoad() {
+      override func viewDidLoad() {
         super.viewDidLoad()
         
         initSceneView()
@@ -51,6 +49,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBAction func startButtonPressed(_ sender: UIButton) {
     }
     @IBAction func styleButtonPressed(_ sender: UIButton) {
+        
         diceStyle = diceStyle >= 4 ? 0 : diceStyle + 1
     }
     @IBAction func resetButtonPressed(_ sender: UIButton) {
@@ -59,7 +58,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBAction func swipeUpGestureHandler(_ sender: Any) {
         
         guard let frame = self.sceneView.session.currentFrame else { return }
-        // 2
+        // เพิ่ม diceNode ใน scene หลัก
         for count in 0..<diceCount {
             throwDiceNode(transform: SCNMatrix4(frame.camera.transform),
                           offset: diceOffset[count])
@@ -86,7 +85,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
         DispatchQueue.main.async {
-            self.statusLabel.text = self.trackingStatus
+           // self.statusLabel.text = self.trackingStatus
+            self.updateStatus()
         }
     }
     
@@ -154,6 +154,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let configuration = ARWorldTrackingConfiguration()
         
         configuration.worldAlignment = .gravity
+        configuration.planeDetection = .horizontal
         configuration.providesAudioData = false
         
         // Run the view's session
@@ -173,27 +174,51 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let diceScene = SCNScene(named: "PockerDice.scnassets/Models/DiceScene.scn")!
         
         for count in 0..<5 {
-            
+            // สร้าง diceNode จาก diceScene ตามชื่อ node ใน diceScene
             diceNodes.append(diceScene.rootNode.childNode(withName: "Dice\(count)", recursively: false)!)
         }
         
         let focusScene = SCNScene(named: "PockerDice.scnassets/Models/FocusScene.scn")!
-        
+        // สร้าง focusNode จาก focusScene ตามชื่อ node ใน focusScene
         focusNode = focusScene.rootNode.childNode(withName: "focus", recursively: false)!
+        // เพิ่ม focusNode ใน scene หลัก
         sceneView.scene.rootNode.addChildNode(focusNode)
         
     }
-    
+    //                               ตำแหน่งของกล้อง                ตำแหน่งที่ตั้งค่าไว้
     func throwDiceNode(transform: SCNMatrix4, offset:SCNVector3)  {
         let position = SCNVector3(transform.m41 + offset.x, transform.m42 + offset.y, transform.m43 + offset.z)
         
-        let diceNode = diceNodes[diceStyle].clone()
+        let diceNode = diceNodes[diceStyle].clone() // copy แบบ dice ใน array diceNodes
         diceNode.name = "Dice"
         diceNode.position = position
-        
+         // เพิ่ม diceNode ใน scene หลัก
         sceneView.scene.rootNode.addChildNode(diceNode)
       //  diceCount -= 1
         
     }
     
+    func updateStatus()  {
+        switch gameState {
+        case .detectSurface:
+            statusMessage = "Scan entire table surface...\nHit START when ready"
+        case .pointToSurface:
+            statusMessage = "Point at designated surface first!"
+        case .swipeToPlay:
+            statusMessage = "Swipe UP to throw!\nTap on dice to collect it again."
+        }
+        
+        self.statusLabel.text = trackingStatus != "" ? "\(trackingStatus)" : "\(statusMessage)"
+    }
+    
+    func createARPlaneNode(planeAnchor: ARPlaneAnchor,color: UIColor) -> SCNNode {
+        <#function body#>
+    }
+    
+}
+
+enum GameState: Int16 {
+    case detectSurface
+    case pointToSurface
+    case swipeToPlay
 }
