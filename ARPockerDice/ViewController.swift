@@ -116,6 +116,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
     }
     
+    func removeARPlaneNode(node: SCNNode) {
+        for childNode in node.childNodes {
+            childNode.removeFromParentNode()
+        }
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
+        guard anchor is ARPlaneAnchor else { return }
+        DispatchQueue.main.async {
+            self.removeARPlaneNode(node: node)
+        }
+    }
+    
+    
+    
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user
         
