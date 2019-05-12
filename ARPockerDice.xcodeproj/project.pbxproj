@@ -7,23 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A4041F042288618B00E0F8A4 /* GameUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4041F002288618B00E0F8A4 /* GameUtils.swift */; };
+		A4041F052288618B00E0F8A4 /* SCNVector3+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4041F012288618B00E0F8A4 /* SCNVector3+Extension.swift */; };
+		A4041F062288618B00E0F8A4 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4041F022288618B00E0F8A4 /* Generics.swift */; };
+		A4041F072288618B00E0F8A4 /* Random+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4041F032288618B00E0F8A4 /* Random+Extension.swift */; };
 		A47D7A01228819DA00D3DE8D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A47D7A00228819DA00D3DE8D /* AppDelegate.swift */; };
-		A47D7A03228819DA00D3DE8D /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = A47D7A02228819DA00D3DE8D /* art.scnassets */; };
 		A47D7A05228819DA00D3DE8D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A47D7A04228819DA00D3DE8D /* ViewController.swift */; };
 		A47D7A08228819DA00D3DE8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A47D7A06228819DA00D3DE8D /* Main.storyboard */; };
 		A47D7A0A228819DC00D3DE8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A47D7A09228819DC00D3DE8D /* Assets.xcassets */; };
 		A47D7A0D228819DC00D3DE8D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A47D7A0B228819DC00D3DE8D /* LaunchScreen.storyboard */; };
+		A47D7A1522881ACE00D3DE8D /* PockerDice.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = A47D7A1422881ACE00D3DE8D /* PockerDice.scnassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A4041F002288618B00E0F8A4 /* GameUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameUtils.swift; sourceTree = "<group>"; };
+		A4041F012288618B00E0F8A4 /* SCNVector3+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector3+Extension.swift"; sourceTree = "<group>"; };
+		A4041F022288618B00E0F8A4 /* Generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generics.swift; sourceTree = "<group>"; };
+		A4041F032288618B00E0F8A4 /* Random+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Random+Extension.swift"; sourceTree = "<group>"; };
 		A47D79FD228819DA00D3DE8D /* ARPockerDice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ARPockerDice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A47D7A00228819DA00D3DE8D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		A47D7A02228819DA00D3DE8D /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
 		A47D7A04228819DA00D3DE8D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		A47D7A07228819DA00D3DE8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A47D7A09228819DC00D3DE8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A47D7A0C228819DC00D3DE8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A47D7A0E228819DC00D3DE8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A47D7A1422881ACE00D3DE8D /* PockerDice.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = PockerDice.scnassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,6 +45,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A4041EFF2288618B00E0F8A4 /* GameUtils */ = {
+			isa = PBXGroup;
+			children = (
+				A4041F002288618B00E0F8A4 /* GameUtils.swift */,
+				A4041F012288618B00E0F8A4 /* SCNVector3+Extension.swift */,
+				A4041F022288618B00E0F8A4 /* Generics.swift */,
+				A4041F032288618B00E0F8A4 /* Random+Extension.swift */,
+			);
+			path = GameUtils;
+			sourceTree = "<group>";
+		};
 		A47D79F4228819DA00D3DE8D = {
 			isa = PBXGroup;
 			children = (
@@ -56,8 +75,9 @@
 		A47D79FF228819DA00D3DE8D /* ARPockerDice */ = {
 			isa = PBXGroup;
 			children = (
+				A4041EFF2288618B00E0F8A4 /* GameUtils */,
+				A47D7A1422881ACE00D3DE8D /* PockerDice.scnassets */,
 				A47D7A00228819DA00D3DE8D /* AppDelegate.swift */,
-				A47D7A02228819DA00D3DE8D /* art.scnassets */,
 				A47D7A04228819DA00D3DE8D /* ViewController.swift */,
 				A47D7A06228819DA00D3DE8D /* Main.storyboard */,
 				A47D7A09228819DC00D3DE8D /* Assets.xcassets */,
@@ -125,7 +145,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A47D7A03228819DA00D3DE8D /* art.scnassets in Resources */,
+				A47D7A1522881ACE00D3DE8D /* PockerDice.scnassets in Resources */,
 				A47D7A0D228819DC00D3DE8D /* LaunchScreen.storyboard in Resources */,
 				A47D7A0A228819DC00D3DE8D /* Assets.xcassets in Resources */,
 				A47D7A08228819DA00D3DE8D /* Main.storyboard in Resources */,
@@ -140,7 +160,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				A47D7A05228819DA00D3DE8D /* ViewController.swift in Sources */,
+				A4041F042288618B00E0F8A4 /* GameUtils.swift in Sources */,
+				A4041F062288618B00E0F8A4 /* Generics.swift in Sources */,
 				A47D7A01228819DA00D3DE8D /* AppDelegate.swift in Sources */,
+				A4041F072288618B00E0F8A4 /* Random+Extension.swift in Sources */,
+				A4041F052288618B00E0F8A4 /* SCNVector3+Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,7 +317,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.samson6552-gmail.com.ARPockerDice";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.samson6552-gmail.com";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -311,7 +335,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.samson6552-gmail.com.ARPockerDice";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.samson6552-gmail.com";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
