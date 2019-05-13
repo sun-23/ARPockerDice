@@ -49,15 +49,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     @IBAction func startButtonPressed(_ sender: UIButton) {
+        
+        self.startGame()
     }
     @IBAction func styleButtonPressed(_ sender: UIButton) {
         
         diceStyle = diceStyle >= 4 ? 0 : diceStyle + 1
     }
     @IBAction func resetButtonPressed(_ sender: UIButton) {
+        
+        self.resetGame()
     }
     
     @IBAction func swipeUpGestureHandler(_ sender: Any) {
+        
+        guard gameState == .swipeToPlay else {return}
         
         guard let frame = self.sceneView.session.currentFrame else { return }
         // เพิ่ม diceNode ใน scene หลัก
@@ -82,6 +88,37 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Pause the view's session
         sceneView.session.pause()
+    }
+    func startGame()  {
+        DispatchQueue.main.async {
+            self.startButton.isHidden = true
+            self.suspendARPlaneDetection()
+            self.hideARPlaneNode()
+            self.gameState = .pointToSurface
+        }
+    }
+    
+    func resetGame() {
+        
+        DispatchQueue.main.async {
+            self.startButton.isHidden = false
+            self.resetARSession()
+            self.gameState = .detectSurface
+        }
+        
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        DispatchQueue.main.async {
+            if let touchLocation = touches.first?.location(in: self.sceneView) {
+                if let hit = self.sceneView.hitTest(touchLocation, options: nil).first {
+                    if hit.node.name == "Dice" {
+                        hit.node.removeFromParentNode()
+                        self.diceCount += 1
+                    }
+                }
+            }
+        }
     }
 
     
@@ -153,6 +190,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func sessionInterruptionEnded(_ session: ARSession) {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
           trackingStatus = "AR Session Interruption Ended"
+        self.resetGame()
         
     }
     
@@ -181,7 +219,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     func initSceneView() {
         sceneView.delegate = self
-        sceneView.showsStatistics = true
+       // sceneView.showsStatistics = true
       //  sceneView.debugOptions = [
          //   SCNDebugOptions.showFeaturePoints,
         //    SCNDebugOptions.showWorldOrigin,
@@ -215,6 +253,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.isLightEstimationEnabled = true
         // Run the view's session
         sceneView.session.run(configuration)
+    }
+    
+    func resetARSession() {
+        
+        let config = sceneView.session.configuration as! ARWorldTrackingConfiguration
+        config.planeDetection = .horizontal
+        sceneView.session.run(config, options: [.resetTracking,.removeExistingAnchors])
+        
     }
     
     func initScene() {
@@ -364,6 +410,30 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                     
                 }
             }
+        }
+    }
+    
+    func suspendARPlaneDetection() {
+        
+        let config = sceneView.session.configuration as! ARWorldTrackingConfiguration
+        
+        config.planeDetection = []
+        sceneView.session.run(config)
+    }
+    
+    func hideARPlaneNode() {
+        
+        for anchor in (self.sceneView.session.currentFrame?.anchors)! {
+            
+            if let node = self.sceneView.node(for: anchor) {
+                
+                for child in node.childNodes {
+                    
+                    let material = child.geometry?.materials.first!
+                    material?.colorBufferWriteMask = []
+                }
+            }
+            
         }
     }
     
