@@ -89,6 +89,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
            // self.statusLabel.text = self.trackingStatus
             self.updateStatus()
             self.updateFocusNode()
+            self.updateDiceNode()
         }
     }
     
@@ -124,9 +125,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
         guard anchor is ARPlaneAnchor else { return }
+        
         DispatchQueue.main.async {
             self.removeARPlaneNode(node: node)
         }
+        
+        
     }
     
     
@@ -218,6 +222,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.scene = scene
         scene.lightingEnvironment.contents = "PokerDice.scnassets/Textures/Environment_CUBE.jpg"
         scene.lightingEnvironment.intensity = 2
+        scene.physicsWorld.speed = 0.5
+        scene.physicsWorld.timeStep = 1.0 / 60.0
     }
     
     func loadModels() {
@@ -238,14 +244,24 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     //                               ตำแหน่งของกล้อง                ตำแหน่งที่ตั้งค่าไว้
     func throwDiceNode(transform: SCNMatrix4, offset:SCNVector3)  {
+        
+        let distance = simd_distance(focusNode.simdPosition, simd_make_float3(simd_make_float3(transform.m41,transform.m42,transform.m43)))
+        
+        let direction = SCNVector3(-(distance * 2.5) * transform.m31, -(distance * 2.5) * (transform.m32 - Float.pi / 4), (-(distance * 2.5) * transform.m33))
+        
+        
+        let rotation = SCNVector3(Double.random(min: 0, max: Double.pi),Double.random(min: 0, max: Double.pi),Double.random(min: 0, max: Double.pi))
         let position = SCNVector3(transform.m41 + offset.x, transform.m42 + offset.y, transform.m43 + offset.z)
         
         let diceNode = diceNodes[diceStyle].clone() // copy แบบ dice ใน array diceNodes
         diceNode.name = "Dice"
         diceNode.position = position
+        diceNode.eulerAngles = rotation
+        diceNode.physicsBody?.resetTransform()
+        diceNode.physicsBody?.applyForce(direction, asImpulse: true)
          // เพิ่ม diceNode ใน scene หลัก
         sceneView.scene.rootNode.addChildNode(diceNode)
-      //  diceCount -= 1
+        diceCount -= 1
         
     }
     
@@ -280,8 +296,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
         //                                                                                   angle           x    y   z
         planeNode.transform  = SCNMatrix4MakeRotation(-Float.pi / 2, 1  , 0, 0)
+        
+        planeNode.physicsBody = createARPlanePhysics(geomatry: planeGeomatry)
         return planeNode
         
+    }
+    
+    func createARPlanePhysics(geomatry: SCNGeometry) -> SCNPhysicsBody {
+        
+        let physicsBody = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: geomatry, options: nil))
+        physicsBody.restitution = 0.5
+        physicsBody.friction = 0.5
+        
+        return physicsBody
     }
     
     func updateARPlaneNode(planeNode:SCNNode, planeAnchor : ARPlaneAnchor)  {
@@ -292,6 +319,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
         
+        planeNode.physicsBody = nil
+        planeNode.physicsBody = createARPlanePhysics(geomatry: planeGeomatry)
         
     }
     
@@ -314,6 +343,23 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             
         }
         
+    }
+    
+    // Recovering fallen dice
+    func updateDiceNode(){
+        
+        for node in sceneView.scene.rootNode.childNodes{
+            
+            if node.name == "Dice" {
+                
+                if node.presentation.position.y < -2 {
+                    
+                    node.removeFromParentNode()
+                    diceCount += 1
+                    
+                }
+            }
+        }
     }
     
     
