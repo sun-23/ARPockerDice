@@ -24,6 +24,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     @IBOutlet var swipeUpGestureHandler: UISwipeGestureRecognizer!
     
+    var lightNode: SCNNode!
     var focusNode: SCNNode!
     var trackingStatus:String = ""
     var diceNodes : [SCNNode] = []
@@ -211,7 +212,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.worldAlignment = .gravity
         configuration.planeDetection = .horizontal
         configuration.providesAudioData = false
-        
+        configuration.isLightEstimationEnabled = true
         // Run the view's session
         sceneView.session.run(configuration)
     }
@@ -241,7 +242,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // เพิ่ม focusNode ใน scene หลัก
         sceneView.scene.rootNode.addChildNode(focusNode)
         
+        lightNode = diceScene.rootNode.childNode(withName: "directional", recursively: false)!
+        sceneView.scene.rootNode.addChildNode(lightNode)
     }
+    
+    
     //                               ตำแหน่งของกล้อง                ตำแหน่งที่ตั้งค่าไว้
     func throwDiceNode(transform: SCNMatrix4, offset:SCNVector3)  {
         
