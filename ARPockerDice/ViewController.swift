@@ -93,7 +93,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         DispatchQueue.main.async {
             self.startButton.isHidden = true
             self.suspendARPlaneDetection()
-            self.hideARPlaneNode()
+            self.hideARPlaneNodes()
             self.gameState = .pointToSurface
         }
     }
@@ -190,7 +190,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func sessionInterruptionEnded(_ session: ARSession) {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
           trackingStatus = "AR Session Interruption Ended"
-        self.resetGame()
         
     }
     
@@ -269,14 +268,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.scene = scene
         scene.lightingEnvironment.contents = "PokerDice.scnassets/Textures/Environment_CUBE.jpg"
         scene.lightingEnvironment.intensity = 2
-        scene.physicsWorld.speed = 0.5
+        scene.physicsWorld.speed = 1
         scene.physicsWorld.timeStep = 1.0 / 60.0
     }
     
     func loadModels() {
         
         let diceScene = SCNScene(named: "PockerDice.scnassets/Models/DiceScene.scn")!
-        
+        lightNode = diceScene.rootNode.childNode(withName: "directional", recursively: false)!
+          sceneView.scene.rootNode.addChildNode(lightNode)
         for count in 0..<5 {
             // สร้าง diceNode จาก diceScene ตามชื่อ node ใน diceScene
             diceNodes.append(diceScene.rootNode.childNode(withName: "Dice\(count)", recursively: false)!)
@@ -288,8 +288,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // เพิ่ม focusNode ใน scene หลัก
         sceneView.scene.rootNode.addChildNode(focusNode)
         
-        lightNode = diceScene.rootNode.childNode(withName: "directional", recursively: false)!
-        sceneView.scene.rootNode.addChildNode(lightNode)
     }
     
     
@@ -348,19 +346,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //                                                                                   angle           x    y   z
         planeNode.transform  = SCNMatrix4MakeRotation(-Float.pi / 2, 1  , 0, 0)
         
-        planeNode.physicsBody = createARPlanePhysics(geomatry: planeGeomatry)
+        planeNode.physicsBody = createARPlanePhysics(geometry: planeGeomatry)
         return planeNode
         
     }
     
-    func createARPlanePhysics(geomatry: SCNGeometry) -> SCNPhysicsBody {
-        
-        let physicsBody = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: geomatry, options: nil))
+    func createARPlanePhysics(geometry: SCNGeometry) -> SCNPhysicsBody {
+        let physicsBody = SCNPhysicsBody(
+            type: .kinematic,
+            shape: SCNPhysicsShape(geometry: geometry, options: nil))
         physicsBody.restitution = 0.5
         physicsBody.friction = 0.5
-        
         return physicsBody
     }
+    
     
     func updateARPlaneNode(planeNode:SCNNode, planeAnchor : ARPlaneAnchor)  {
         
@@ -371,7 +370,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         planeNode.position = SCNVector3Make(planeAnchor.center.x, 0, planeAnchor.center.z)
         
         planeNode.physicsBody = nil
-        planeNode.physicsBody = createARPlanePhysics(geomatry: planeGeomatry)
+        planeNode.physicsBody = createARPlanePhysics(geometry: planeGeomatry)
         
     }
     
@@ -414,26 +413,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func suspendARPlaneDetection() {
-        
         let config = sceneView.session.configuration as! ARWorldTrackingConfiguration
-        
         config.planeDetection = []
         sceneView.session.run(config)
     }
     
-    func hideARPlaneNode() {
+    func hideARPlaneNodes() {
         
         for anchor in (self.sceneView.session.currentFrame?.anchors)! {
-            
             if let node = self.sceneView.node(for: anchor) {
-                
                 for child in node.childNodes {
-                    
                     let material = child.geometry?.materials.first!
                     material?.colorBufferWriteMask = []
                 }
             }
-            
         }
     }
     
